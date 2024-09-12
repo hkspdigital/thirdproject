@@ -7,34 +7,24 @@ on:
 
 jobs:
   deploy:
+    name: Deploy to Server
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '22'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build project
-        run: npm run build
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
       - name: Deploy to Server
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SERVER_IP: ${{ secrets.SERVER_IP }}
-          USERNAME: ${{ secrets.SERVER_USER }}
         run: |
-          # Save the SSH key to a file
-          echo "$SSH_PRIVATE_KEY" > private_key.pem
-          chmod 600 private_key.pem
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd /var/www/projects/thirdproject/dev/frontend-thirdproject && git checkout staging && git pull"
 
-          # Copy build folder to the server
-          scp -i private_key.pem -o StrictHostKeyChecking=no -r ./build $USERNAME@$SERVER_IP:/var/www/projects/firstproject/dev/frontend-firstproject/
-
-          # Clean up
-          rm private_key.pem
+      - name: Cleanup
+        run: rm -rf ~/.ssh
