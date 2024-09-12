@@ -7,6 +7,7 @@ function App() {
       <header className="App-header">
         <h1>Hasil Karya Inventory!</h1>
         <p>untuk PO & manajemen inventory General Affairs.</p>
+        <p>#1 action workflow.</p>
       </header>
     </div>
   );
