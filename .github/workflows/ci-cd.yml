@@ -15,7 +15,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'  # Versi Node.js yang sesuai dengan proyek Anda
+          node-version: '22'
 
       - name: Install dependencies
         run: npm install
