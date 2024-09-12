@@ -1,0 +1,44 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - staging
+  # Optional: run on pull requests
+  pull_request:
+    branches:
+      - staging
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install Dependencies
+      run: |
+        # Jika menggunakan Node.js, install dependencies
+        npm install
+
+    - name: Run Tests
+      run: |
+        # Jika menggunakan Node.js, jalankan test
+        npm test
+
+    - name: Deploy to Server
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SERVER_IP: ${{ secrets.SERVER_IP }}
+        USERNAME: ${{ secrets.USERNAME }}
+      run: |
+        # Save the SSH key to a file
+        echo "$SSH_PRIVATE_KEY" > private_key.pem
+        chmod 600 private_key.pem
+
+        # Copy files to the server
+        scp -i private_key.pem -o StrictHostKeyChecking=no -r ./path/to/your/files $USERNAME@$SERVER_IP:/path/on/server
+
+        # Clean up
+        rm private_key.pem
